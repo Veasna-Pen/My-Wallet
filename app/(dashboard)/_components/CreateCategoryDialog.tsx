@@ -31,8 +31,8 @@ import {
   CreateCategorySchemaType,
 } from "@/schema/categories";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CircleOff, PlusSquare } from "lucide-react";
-import React, { useState } from "react";
+import { CircleOff, Loader2, PlusSquare } from "lucide-react";
+import React, { useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
@@ -53,11 +53,11 @@ const CreateCategoryDialog = ({ type }: Props) => {
     },
   });
 
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   const { mutate, isPending } = useMutation({
     mutationFn: CreateCategory,
-    onSuccess: (data: Category) => {
+    onSuccess: async (data: Category) => {
       form.reset({
         name: "",
         icon: "",
@@ -69,25 +69,27 @@ const CreateCategoryDialog = ({ type }: Props) => {
       });
 
       await queryClient.invalidateQueries({
-        queryKey: ["categories"]
+        queryKey: ["categories"],
       });
 
-
-      setOpen((prev) => !prev)
+      setOpen((prev) => !prev);
     },
-    onError: () =>{
-      toast.error("Something went wrong" ,{
-        id: "create-category"
-      })
-    }
+    onError: () => {
+      toast.error("Something went wrong", {
+        id: "create-category",
+      });
+    },
   });
 
-  const onSubmit = (values: CreateCategorySchemaType) => {
-    toast.loading("Creating category...", {
-      id: "create-category",
-    }), 
-    mutate(values);
-  };
+  const onSubmit = useCallback(
+    (values: CreateCategorySchemaType) => {
+      toast.loading("Creating category...", {
+        id: "create-category",
+      }),
+        mutate(values);
+    },
+    [mutate]
+  );
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -118,7 +120,7 @@ const CreateCategoryDialog = ({ type }: Props) => {
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form className="space-y-8">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <FormField
               control={form.control}
               name="name"
@@ -195,7 +197,10 @@ const CreateCategoryDialog = ({ type }: Props) => {
               Cancel
             </Button>
           </DialogClose>
-          <Button>Save</Button>
+          <Button onClick={form.handleSubmit(onSubmit)} disabled={isPending}>
+            {!isPending && "Create"}
+            {isPending && <Loader2 className="animate-spin" />}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
