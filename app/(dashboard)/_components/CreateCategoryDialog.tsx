@@ -40,11 +40,13 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { CreateCategory } from "../_actions/categories";
 import { Category } from "@prisma/client";
 import { toast } from "sonner";
+import { useTheme } from "next-themes";
 
 interface Props {
   type: TransactionType;
+  successCallback: (category: Category) => void;
 }
-const CreateCategoryDialog = ({ type }: Props) => {
+const CreateCategoryDialog = ({ type, successCallback }: Props) => {
   const [open, setOpen] = useState(false);
   const form = useForm<CreateCategorySchemaType>({
     resolver: zodResolver(CreateCategorySchema),
@@ -54,6 +56,7 @@ const CreateCategoryDialog = ({ type }: Props) => {
   });
 
   const queryClient = useQueryClient();
+  const theme = useTheme()
 
   const { mutate, isPending } = useMutation({
     mutationFn: CreateCategory,
@@ -71,6 +74,8 @@ const CreateCategoryDialog = ({ type }: Props) => {
       await queryClient.invalidateQueries({
         queryKey: ["categories"],
       });
+
+      successCallback(data);
 
       setOpen((prev) => !prev);
     },
@@ -128,9 +133,9 @@ const CreateCategoryDialog = ({ type }: Props) => {
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input defaultValue={""} {...field} />
+                    <Input placeholder="Category" {...field} />
                   </FormControl>
-                  <FormDescription>Transaction description</FormDescription>
+                  <FormDescription>This is how your category will appear in the app</FormDescription>
                 </FormItem>
               )}
             />
@@ -170,6 +175,7 @@ const CreateCategoryDialog = ({ type }: Props) => {
                       <PopoverContent className="w-full">
                         <Picker
                           data={data}
+                          theme={theme.resolvedTheme}
                           onEmojiSelect={(emoji: { native: string }) => {
                             field.onChange(emoji.native);
                           }}
