@@ -6,6 +6,7 @@ import { GetFormatterForCurrency } from "@/lib/helper";
 import { Period, Timeframe } from "@/lib/types";
 import { UserSettings } from "@prisma/client";
 import { useMemo, useState } from "react";
+import HistoryPeriodSelector from "./HistoryPeriodSelector";
 
 const History = ({ userSettings }: { userSettings: UserSettings }) => {
   const [timeframe, setTimeframe] = useState<Timeframe>("month");
@@ -24,12 +25,12 @@ const History = ({ userSettings }: { userSettings: UserSettings }) => {
       <Card className="col-span-12 mt-2 w-full">
         <CardHeader className="gap-2">
           <CardTitle className="grid grid-flow-row justify-between gap-2 md:grid-flow-col">
-            {/* <HistoryPeriodSelector
+            <HistoryPeriodSelector
               period={period}
               setPeriod={setPeriod}
               timeframe={timeframe}
               setTimeframe={setTimeframe}
-            /> */}
+            />
 
             <div className="flex h-10 gpa-2">
                 <Badge variant={'outline'} className="flex items-center gap-2 text-sm">
