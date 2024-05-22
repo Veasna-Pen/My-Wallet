@@ -40,6 +40,8 @@ export async function GET(request: Request) {
         month: queryParams.data.month,
         year: queryParams.data.year
     })
+
+    return Response.json(data)
 }
 
 export type GetHistoryDataResponseType = Awaited<ReturnType<typeof getHistoryData>>;
@@ -121,17 +123,17 @@ async function getMonthHistoryData(userId: string, year: number, month: number) 
         ],
     });
 
-    if(!result || result.length === 0) return [];
+    if (!result || result.length === 0) return [];
 
     const history: HistoryData[] = [];
-    
+
     const dayInMonth = getDaysInMonth(new Date(year, month));
-    for(let i = 1; i < 31; i++){
+    for (let i = 1; i <= dayInMonth; i++) {
         let expense = 0;
         let income = 0;
 
         const day = result.find((row) => row.day === i)
-        if(day){
+        if (day) {
             expense = day._sum.expense || 0;
             income = day._sum.income || 0;
         }
